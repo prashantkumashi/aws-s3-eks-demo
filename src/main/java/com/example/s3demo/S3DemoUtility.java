@@ -33,7 +33,7 @@ public class S3DemoUtility {
 		
 		S3Client s3client = S3Client.builder()
 				.credentialsProvider(WebIdentityTokenFileCredentialsProvider.create())
-				.region(Region.US_WEST_1).build();
+				.region(Region.US_WEST_2).build();
 		
 		Path filepath = Files.createTempFile(UUID.randomUUID().toString(), null);
 		

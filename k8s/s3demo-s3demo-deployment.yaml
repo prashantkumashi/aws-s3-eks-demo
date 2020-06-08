@@ -10,7 +10,7 @@ metadata:
   name: demo-sa
   namespace: demo
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::667811466675:role/s3from-eks-role
+    eks.amazonaws.com/role-arn: arn:aws:iam::12345678910:role/<IAMROLENAME>
 
 ---
 apiVersion: v1
@@ -21,13 +21,14 @@ metadata:
   labels:
     app: aws-s3-demo
 data:
-  AWS_ROLE_ARN: arn:aws:iam::667811466675:role/s3from-eks-role
+  AWS_ROLE_ARN: arn:aws:iam::12345678910:role/<IAMROLENAME>
   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-  AWS_BUCKET_ARN: arn:aws:s3:::s3from-eks
-  AWS_BUCKET_NAME: s3from-eks
+  AWS_BUCKET_ARN: arn:aws:s3:::<bucketname>
+  AWS_BUCKET_NAME: <bucketname>
+  AWS_REGION: <regionname>
 
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sss-deployment
@@ -35,40 +36,40 @@ metadata:
   labels:
     app: aws-s3-demo
 spec:
-  replicas: 1
   selector:
     matchLabels:
-    app: aws-s3-demo
+      app: aws-s3-demo
+  replicas: 1
   template:
     metadata:
-    labels:
-      app: aws-s3-demo
-    environment: dev
-  spec:
-    serviceAccountName: demo-sa
-    containers:
-    - name: aws-s3-demo
-      image: prashant2020/aws-s3-eks-demo
-      ports: 
-      - containerPort: 8080
+      labels:
+        app: aws-s3-demo
+        environment: dev
+    spec:
+      serviceAccountName: demo-sa
       securityContext:
         fsGroup: 65534
-    volumeMounts:
-    - mountPath: /var/run/secrets/eks.amazonaws.com/serviceaccount
-      name: aws-iam-token
-      readOnly: true
-    envFrom:
-      - configMapRef:
-          name: demo-configmap
-  volumes:
-  - name: aws-iam-token
-    projected:
-      defaultMode: 420
-      sources:
-      - serviceAccountToken:
-          audience: sts.amazonaws.com
-          expirationSeconds: 86400
-          path: token
+      containers:
+      - name: aws-s3-demo
+        image: prashant2020/aws-s3-eks-demo:1.11
+        ports:
+        - containerPort: 8080
+        envFrom:
+          - configMapRef:
+              name: demo-configmap
+        volumeMounts:
+        - mountPath: /var/run/secrets/eks.amazonaws.com/serviceaccount
+          name: aws-iam-token
+          readOnly: true
+      volumes:
+      - name: aws-iam-token
+        projected:
+          defaultMode: 420
+          sources:
+          - serviceAccountToken:
+              audience: sts.amazonaws.com
+              expirationSeconds: 86400
+              path: token
 
 ---
 apiVersion: v1
@@ -84,4 +85,5 @@ spec:
     app: aws-s3-demo
   ports:
   - port: 80
+    nodePort: 30989
     targetPort: 8080
