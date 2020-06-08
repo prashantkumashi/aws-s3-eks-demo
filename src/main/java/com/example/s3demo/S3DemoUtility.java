@@ -12,7 +12,7 @@ import java.util.ListIterator;
 import java.util.Random;
 import java.util.UUID;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import software.amazon.awssdk.auth.credentials.WebIdentityTokenFileCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-@Component
+@Service
 public class S3DemoUtility {
 
 	public String runS3demo(String bucketName) throws Exception{
@@ -47,7 +47,7 @@ public class S3DemoUtility {
 				.bucket(bucketName)
 				.key(filepath.getFileName().toString())
 				.build(), 
-				RequestBody.fromBytes(readBytesFromFile(filepath.getFileName().toString() )));
+				RequestBody.fromBytes(readBytesFromFile("/tmp/"+filepath.getFileName().toString() )));
 
 		returndata.append(response.eTag());
 		

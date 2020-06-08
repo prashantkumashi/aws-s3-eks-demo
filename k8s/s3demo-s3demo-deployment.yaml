@@ -10,7 +10,7 @@ metadata:
   name: demo-sa
   namespace: demo
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::<AWS_ACCOUNT_ID>:role/<IAM_ROLE_NAME>
+    eks.amazonaws.com/role-arn: arn:aws:iam::667811466675:role/s3from-eks-role
 
 ---
 apiVersion: v1
@@ -21,10 +21,10 @@ metadata:
   labels:
     app: aws-s3-demo
 data:
-  AWS_ROLE_ARN: <replacewithrolearn>
+  AWS_ROLE_ARN: arn:aws:iam::667811466675:role/s3from-eks-role
   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
-  AWS_BUCKET_ARN: <replacewithbucketarn>
-  AWS_BUCKET_NAME: <replacewithbucketname>
+  AWS_BUCKET_ARN: arn:aws:s3:::s3from-eks
+  AWS_BUCKET_NAME: s3from-eks
 
 ---
 apiVersion: v1
@@ -48,7 +48,7 @@ spec:
     serviceAccountName: demo-sa
     containers:
     - name: aws-s3-demo
-      image: <imagename>
+      image: prashant2020/aws-s3-eks-demo
       ports: 
       - containerPort: 8080
       securityContext:
@@ -79,6 +79,7 @@ metadata:
   labels:
     app: aws-s3-demo
 spec:
+  type: NodePort
   selector:
     app: aws-s3-demo
   ports:
